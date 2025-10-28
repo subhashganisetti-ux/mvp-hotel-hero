@@ -58,9 +58,9 @@ const Index = () => {
             <div className="flex gap-4">
               {user ? (
                 <>
-                  <span className="text-white flex items-center">
-                    Welcome back!
-                  </span>
+                  <Button variant="secondary" onClick={() => navigate("/my-bookings")}>
+                    My Bookings
+                  </Button>
                   <Button variant="secondary" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out

@@ -75,7 +75,7 @@ const HotelDetail = () => {
         checkOut
       );
 
-      await bookingPresenter.createBooking({
+      const newBooking = await bookingPresenter.createBooking({
         hotel_id: hotel.id,
         check_in_date: checkIn,
         check_out_date: checkOut,
@@ -84,7 +84,7 @@ const HotelDetail = () => {
       });
 
       toast.success("Booking confirmed!");
-      navigate("/");
+      navigate(`/booking/${newBooking.id}`);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
