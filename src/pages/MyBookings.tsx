@@ -3,24 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { BookingPresenter } from "@/presenters/BookingPresenter";
 import { HotelPresenter } from "@/presenters/HotelPresenter";
 import { AuthPresenter } from "@/presenters/AuthPresenter";
+import { Booking } from "@/models/BookingModel";
+import { Hotel } from "@/models/HotelModel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Calendar, MapPin, Users, Eye } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Users, CreditCard } from "lucide-react";
 
 const bookingPresenter = new BookingPresenter();
 const hotelPresenter = new HotelPresenter();
 const authPresenter = new AuthPresenter();
 
-interface BookingWithHotel {
-  booking: any;
-  hotel: any;
-}
-
 const MyBookings = () => {
   const navigate = useNavigate();
-  const [bookingsWithHotels, setBookingsWithHotels] = useState<BookingWithHotel[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [hotels, setHotels] = useState<Record<string, Hotel>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
 
@@ -42,17 +40,22 @@ const MyBookings = () => {
   const loadBookings = async () => {
     setIsLoading(true);
     try {
-      const bookings = await bookingPresenter.loadUserBookings();
+      const bookingsData = await bookingPresenter.loadUserBookings();
+      setBookings(bookingsData);
+
+      const hotelIds = [...new Set(bookingsData.map((b) => b.hotel_id))];
+      const hotelDetails: Record<string, Hotel> = {};
       
-      // Load hotel details for each booking
-      const bookingsWithHotelData = await Promise.all(
-        bookings.map(async (booking) => {
-          const hotel = await hotelPresenter.getHotelDetails(booking.hotel_id);
-          return { booking, hotel };
-        })
-      );
+      for (const hotelId of hotelIds) {
+        try {
+          const hotel = await hotelPresenter.getHotelDetails(hotelId);
+          hotelDetails[hotelId] = hotel;
+        } catch (error) {
+          console.error(`Error loading hotel ${hotelId}:`, error);
+        }
+      }
       
-      setBookingsWithHotels(bookingsWithHotelData);
+      setHotels(hotelDetails);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -60,26 +63,25 @@ const MyBookings = () => {
     }
   };
 
+  const getNights = (checkIn: string, checkOut: string) => {
+    return Math.ceil(
+      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "confirmed":
-        return "bg-green-500";
+        return "default";
       case "pending":
-        return "bg-yellow-500";
+        return "secondary";
       case "cancelled":
-        return "bg-red-500";
+        return "destructive";
       default:
-        return "bg-gray-500";
+        return "secondary";
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading your bookings...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-primary/5 to-background">
@@ -95,92 +97,119 @@ const MyBookings = () => {
 
         <h1 className="text-4xl font-bold mb-8">My Bookings</h1>
 
-        {bookingsWithHotels.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-xl text-muted-foreground mb-4">
-                You don't have any bookings yet
-              </p>
-              <Button variant="hero" onClick={() => navigate("/hotels")}>
-                Browse Hotels
-              </Button>
-            </CardContent>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading bookings...</p>
+          </div>
+        ) : bookings.length === 0 ? (
+          <Card className="p-12 text-center">
+            <p className="text-xl text-muted-foreground mb-6">
+              You haven't made any bookings yet
+            </p>
+            <Button onClick={() => navigate("/hotels")}>
+              Browse Hotels
+            </Button>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {bookingsWithHotels.map(({ booking, hotel }) => (
-              <Card key={booking.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="relative h-48 md:h-auto">
-                    <img
-                      src={hotel.image_url || "/placeholder.svg"}
-                      alt={hotel.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <Badge
-                      className={`absolute top-4 right-4 ${getStatusColor(booking.status)}`}
-                    >
-                      {booking.status}
-                    </Badge>
-                  </div>
-                  
-                  <div className="md:col-span-3 p-6 flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-2">{hotel.name}</h3>
-                      <div className="flex items-center text-muted-foreground mb-4">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        <span className="text-sm">{hotel.location}</span>
-                      </div>
+          <div className="space-y-6">
+            {bookings.map((booking) => {
+              const hotel = hotels[booking.hotel_id];
+              const nights = getNights(booking.check_in_date, booking.check_out_date);
+
+              return (
+                <Card key={booking.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col md:flex-row">
+                      {hotel && (
+                        <div className="md:w-64 h-48 md:h-auto">
+                          <img
+                            src={hotel.image_url || "/placeholder.svg"}
+                            alt={hotel.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex-1 p-6">
+                        <div className="flex justify-between items-start mb-4">
                           <div>
-                            <p className="text-xs text-muted-foreground">Check-in</p>
+                            <h3 className="text-2xl font-bold mb-2">
+                              {hotel?.name || "Loading..."}
+                            </h3>
+                            {hotel && (
+                              <div className="flex items-center text-muted-foreground">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                <span>{hotel.location}</span>
+                              </div>
+                            )}
+                          </div>
+                          <Badge variant={getStatusColor(booking.status)}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center text-muted-foreground text-sm">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              <span>Check-in</span>
+                            </div>
                             <p className="font-semibold">
                               {new Date(booking.check_in_date).toLocaleDateString()}
                             </p>
                           </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Check-out</p>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center text-muted-foreground text-sm">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              <span>Check-out</span>
+                            </div>
                             <p className="font-semibold">
                               {new Date(booking.check_out_date).toLocaleDateString()}
                             </p>
                           </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Guests</p>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center text-muted-foreground text-sm">
+                              <Users className="w-4 h-4 mr-2" />
+                              <span>Guests</span>
+                            </div>
                             <p className="font-semibold">{booking.guests}</p>
                           </div>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center text-muted-foreground text-sm">
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              <span>{nights} nights</span>
+                            </div>
+                            <p className="text-xl font-bold text-primary">
+                              ${booking.total_price}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <Button
+                            variant="outline"
+                            onClick={() => navigate(`/booking/${booking.id}`)}
+                          >
+                            View Details
+                          </Button>
+                          {hotel && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => navigate(`/hotel/${hotel.id}`)}
+                            >
+                              View Hotel
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="flex justify-between items-center pt-4 border-t">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Total Price</p>
-                        <p className="text-2xl font-bold text-primary">
-                          {hotelPresenter.formatPrice(booking.total_price)}
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => navigate(`/booking/${booking.id}`)}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

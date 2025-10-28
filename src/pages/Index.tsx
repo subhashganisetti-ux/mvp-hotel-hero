@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthPresenter } from "@/presenters/AuthPresenter";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { Hotel, LogOut } from "lucide-react";
+import { Hotel, LogOut, Calendar } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 const authPresenter = new AuthPresenter();
@@ -58,7 +58,8 @@ const Index = () => {
             <div className="flex gap-4">
               {user ? (
                 <>
-                  <Button variant="secondary" onClick={() => navigate("/my-bookings")}>
+                  <Button variant="outline" className="text-white border-white hover:bg-white hover:text-primary" onClick={() => navigate("/my-bookings")}>
+                    <Calendar className="mr-2 h-4 w-4" />
                     My Bookings
                   </Button>
                   <Button variant="secondary" onClick={handleSignOut}>

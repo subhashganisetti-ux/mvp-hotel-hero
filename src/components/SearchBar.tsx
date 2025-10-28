@@ -5,15 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface SearchBarProps {
-  onSearch: (params: {
-    city: string;
-    checkIn: string;
-    checkOut: string;
-    guests: number;
-  }) => void;
-}
-
 const POPULAR_CITIES = [
   "Goa",
   "Mumbai",
@@ -24,7 +15,17 @@ const POPULAR_CITIES = [
   "Hyderabad",
   "Kolkata",
   "Pune",
+  "Udaipur"
 ];
+
+interface SearchBarProps {
+  onSearch: (params: {
+    city: string;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+  }) => void;
+}
 
 export const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [city, setCity] = useState("");
@@ -40,10 +41,10 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   return (
     <Card className="p-6 shadow-lg">
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <Select value={city} onValueChange={setCity}>
-            <SelectTrigger className="w-full">
-              <MapPin className="mr-2 h-5 w-5 text-muted-foreground" />
+            <SelectTrigger className="pl-10">
               <SelectValue placeholder="Select destination" />
             </SelectTrigger>
             <SelectContent>
