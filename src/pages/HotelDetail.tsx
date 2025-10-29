@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Star, MapPin, Calendar, Users } from "lucide-react";
+import WhatsAppChat from "@/components/WhatsAppChat";
 
 const hotelPresenter = new HotelPresenter();
 const bookingPresenter = new BookingPresenter();
@@ -246,6 +247,7 @@ const HotelDetail = () => {
           </div>
         </div>
       </div>
+      <WhatsAppChat />
     </div>
   );
 };

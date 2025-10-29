@@ -35,7 +35,7 @@ export class HotelPresenter {
   }
 
   formatPrice(price: number): string {
-    return `$${price.toFixed(2)}`;
+    return `₹${price.toFixed(2)}`;
   }
 
   calculateTotalPrice(pricePerNight: number, checkIn: string, checkOut: string): number {

@@ -183,7 +183,7 @@ const MyBookings = () => {
                               <span>{nights} nights</span>
                             </div>
                             <p className="text-xl font-bold text-primary">
-                              ${booking.total_price}
+                              ₹{booking.total_price}
                             </p>
                           </div>
                         </div>

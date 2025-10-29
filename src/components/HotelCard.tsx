@@ -49,7 +49,7 @@ export const HotelCard = ({ hotel, onViewDetails }: HotelCardProps) => {
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
         <div>
           <p className="text-2xl font-bold text-primary">
-            ${hotel.price_per_night}
+            ₹{hotel.price_per_night}
           </p>
           <p className="text-xs text-muted-foreground">per night</p>
         </div>

@@ -100,7 +100,7 @@ export const BookingConfirmation = ({ booking, hotel }: BookingConfirmationProps
                 <CreditCard className="w-4 h-4 mr-2" />
                 <span>Total Amount</span>
               </div>
-              <p className="text-2xl font-bold text-primary">${booking.total_price}</p>
+              <p className="text-2xl font-bold text-primary">₹{booking.total_price}</p>
             </div>
             <Badge variant="secondary" className="w-full justify-center py-2">
               Status: {booking.status.toUpperCase()}

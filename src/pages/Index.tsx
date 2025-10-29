@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthPresenter } from "@/presenters/AuthPresenter";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { Hotel, LogOut, Calendar } from "lucide-react";
+import { LogOut, Calendar } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import WhatsAppChat from "@/components/WhatsAppChat";
 
 const authPresenter = new AuthPresenter();
 
@@ -51,7 +52,6 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex justify-between items-center mb-16">
             <div className="flex items-center gap-2">
-              <Hotel className="w-8 h-8 text-white" />
               <h1 className="text-3xl font-bold text-white">StayBook</h1>
             </div>
             
@@ -95,7 +95,9 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center p-6">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Hotel className="w-8 h-8 text-primary" />
+              <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
             </div>
             <h3 className="text-xl font-bold mb-2">Best Hotels</h3>
             <p className="text-muted-foreground">
@@ -128,6 +130,8 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      <WhatsAppChat />
     </div>
   );
 };

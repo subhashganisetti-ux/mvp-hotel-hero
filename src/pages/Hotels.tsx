@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import WhatsAppChat from "@/components/WhatsAppChat";
 
 const hotelPresenter = new HotelPresenter();
 
@@ -106,6 +107,7 @@ const Hotels = () => {
           </>
         )}
       </div>
+      <WhatsAppChat />
     </div>
   );
 };
