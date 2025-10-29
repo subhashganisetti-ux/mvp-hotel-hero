@@ -2,13 +2,13 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const WhatsAppChat = () => {
-  const phoneNumber = "918639231446"; // WhatsApp number format: country code + number (no spaces or special chars)
+  const phoneNumber = "918639231446";
   const defaultMessage = "Hi, I would like to enquire about hotel bookings on StayBook.";
   
   const handleWhatsAppClick = () => {
     const encodedMessage = encodeURIComponent(defaultMessage);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, "_blank");
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
